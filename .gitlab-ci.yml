@@ -1,0 +1,25 @@
+#test
+stages:
+  - build
+  - deploy
+
+variables:
+  IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+
+build:
+  stage: build
+  script:
+    - docker build -t $IMAGE .
+    - docker push $IMAGE
+  only:
+    - main
+
+deploy_staging:
+  stage: deploy
+  environment:
+    name: staging
+  script:
+    - kubectl apply -f k8s/deployment.yaml
+    - kubectl apply -f k8s/service.yaml
+  only:
+    - main
